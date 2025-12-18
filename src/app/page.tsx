@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useState } from "react";
+import { Suspense, useState, useTransition } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/eden";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -17,6 +17,7 @@ const Page = () => {
 function Lobby() {
   const { username } = useUsername();
   const router = useRouter();
+  const [StartTransition,SetTransiton]=useTransition()
   const searchParams = useSearchParams();
   const wasDestroyed = searchParams.get("destroyed") === "true";
   const error = searchParams.get("error");
@@ -33,11 +34,13 @@ function Lobby() {
   });
 
   const handleJoin = () => {
-    const trimmed = joinRoomId.trim();
-    if (!trimmed) return;
-    // Navigating to /room/:roomId triggers the proxy/middleware which
-    // checks Redis to verify that the roomId is valid and not full.
-    router.push(`/room/${trimmed}`);
+    SetTransiton(()=>{
+      const trimmed = joinRoomId.trim();
+      if (!trimmed) return;
+      // Navigating to /room/:roomId triggers the proxy/middleware which
+      // checks Redis to verify that the roomId is valid and not full.
+      router.push(`/room/${trimmed}`);
+    })
   };
 
   return (
@@ -141,9 +144,17 @@ function Lobby() {
             <button
               onClick={handleJoin}
               disabled={!joinRoomId.trim()}
-              className="w-full sm:w-auto bg-zinc-100 text-black px-4 py-2.5 text-sm font-bold hover:bg-zinc-50 hover:text-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center w-full sm:w-auto bg-zinc-100 text-black px-4 py-2.5 text-sm font-bold hover:bg-zinc-50 hover:text-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Join Room
+              {
+                StartTransition?(
+                  <Loader2Icon className="animate-spin"/>
+                ):(
+                  <div>
+                    Join Room
+                  </div>
+                )
+              }
             </button>
           </div>
         </div>
