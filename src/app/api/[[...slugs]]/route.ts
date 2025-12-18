@@ -27,10 +27,10 @@ const rooms=new Elysia({prefix:'/room'}).post('/create',async()=>{
         isDestroyed:true
     })
     await Promise.all([
-        redis.del(auth.roomId),
         redis.del(`meta:${auth.roomId}`),
         redis.del(`messages:${auth.roomId}`)
     ])
+    return { success: true }
 },{query:z.object({
     roomId:z.string()
 })})

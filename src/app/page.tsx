@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { client } from "@/lib/eden";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUsername } from "@/hooks/use-username";
+import { Loader2Icon } from "lucide-react";
 
 const Page = () => {
   return (
@@ -22,7 +23,7 @@ function Lobby() {
 
   const [joinRoomId, setJoinRoomId] = useState("");
 
-  const { mutate: createRoom } = useMutation({
+  const { mutate: createRoom,isPending } = useMutation({
     mutationFn: async () => {
       const res = await client.room.create.post();
       if (res.status === 200) {
@@ -97,10 +98,22 @@ function Lobby() {
             </div>
           </div>
           <button
-            className="w-full bg-zinc-100 text-black p-3 text-sm font-bold hover:bg-zinc-50 hover:text-green-500 transition-colors mt-2 cursor-pointer disabled:opacity-50"
+            disabled={isPending}
+            className="w-full bg-zinc-100 text-black p-3 text-sm font-bold
+              hover:bg-zinc-50 hover:text-green-500 transition-colors
+              mt-2 cursor-pointer disabled:opacity-50
+              flex items-center justify-center"
             onClick={() => createRoom()}
           >
-            Create Room
+            {
+              isPending?(
+                <Loader2Icon className="animate-spin"/>
+              ):(
+                <div>
+                  Create Room
+                </div>
+              )
+            }
           </button>
         </div>
 
